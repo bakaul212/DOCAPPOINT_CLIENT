@@ -1,4 +1,4 @@
-import React from 'react';
+import 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { FaStar, FaMapPin, FaBriefcaseMedical } from 'react-icons/fa';
@@ -8,8 +8,11 @@ export const DoctorCard = ({ doctor }) => {
   const { isAuthenticated } = useAuth();
 
   const handleViewDetails = () => {
-    if (!isAuthenticated) navigate('/login');
-    else navigate(`/doctor/${doctor.id}`);
+    if (!isAuthenticated) {
+      navigate('/login');
+    } else {
+      navigate(`/doctors/${doctor._id || doctor.id}`);
+    }
   };
 
   return (

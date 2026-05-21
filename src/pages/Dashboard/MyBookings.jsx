@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getUserAppointments, updateAppointment, deleteAppointment } from '../../utils/api';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import toast from 'react-hot-toast';

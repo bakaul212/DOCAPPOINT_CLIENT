@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { getAppointments, searchAppointments } from '../utils/api';
+import { getAppointments } from '../utils/api';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { FaSearch, FaClock, FaMapPin, FaUserMd } from 'react-icons/fa';
 import toast from 'react-hot-toast';
@@ -20,6 +20,7 @@ export const AllAppointments = () => {
     getAppointments()
       .then(res => {
         setAppointments(res.data);
+        setFilteredAppointments(res.data);
         setLoading(false);
       })
       .catch(() => {
@@ -32,47 +33,37 @@ export const AllAppointments = () => {
     filterAndSort();
   }, [searchTerm, sortBy, appointments]);
 
-  const handleSearch = async (term) => {
-    setSearchTerm(term);
-    if (!term.trim()) {
-      setFilteredAppointments(appointments);
-      return;
-    }
-    try {
-      const response = await searchAppointments(term);
-      setFilteredAppointments(response.data);
-    } catch (error) {
-      setFilteredAppointments([]);
-    }
-  };
-
   const filterAndSort = () => {
-    let filtered = appointments;
+    let filtered = [...appointments];
     if (searchTerm.trim()) {
-      filtered = filtered.filter(apt => apt.doctorName.toLowerCase().includes(searchTerm.toLowerCase()));
+      filtered = filtered.filter(apt =>
+        apt.doctorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        apt.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
 
-    const sorted = [...filtered].sort((a, b) => {
+    filtered.sort((a, b) => {
       switch (sortBy) {
         case 'name':
-          return a.doctorName.localeCompare(b.doctorName);
+          return (a.doctorName || a.name || '').localeCompare(b.doctorName || b.name || '');
         case 'fee-low':
-          return a.fee - b.fee;
+          return (a.fee || 0) - (b.fee || 0);
         case 'fee-high':
-          return b.fee - a.fee;
-        case 'rating':
-          return (b.rating || 0) - (a.rating || 0);
+          return (b.fee || 0) - (a.fee || 0);
         default:
           return 0;
       }
     });
 
-    setFilteredAppointments(sorted);
+    setFilteredAppointments(filtered);
   };
 
   const handleViewDetails = (doctorId) => {
-    if (!isAuthenticated) navigate('/login');
-    else navigate(`/doctor/${doctorId}`);
+    if (!isAuthenticated) {
+      navigate('/login');
+    } else {
+      navigate(`/doctors/${doctorId}`);
+    }
   };
 
   if (loading) return <LoadingSpinner />;
@@ -95,7 +86,7 @@ export const AllAppointments = () => {
                 type="text"
                 placeholder="Search by doctor name..."
                 value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
             </div>
@@ -108,7 +99,6 @@ export const AllAppointments = () => {
               <option value="name">Sort by Name</option>
               <option value="fee-low">Fee: Low to High</option>
               <option value="fee-high">Fee: High to Low</option>
-              <option value="rating">Rating</option>
             </select>
           </div>
         </div>
@@ -120,9 +110,9 @@ export const AllAppointments = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAppointments.map((apt) => (
-              <div key={apt.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition p-6">
-                <img src={apt.image} alt={apt.doctorName} className="w-full h-48 object-cover rounded-lg mb-4" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{apt.doctorName}</h3>
+              <div key={apt._id || apt.id} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition p-6">
+                <img src={apt.image} alt={apt.doctorName || apt.name} className="w-full h-48 object-cover rounded-lg mb-4" />
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{apt.doctorName || apt.name}</h3>
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center gap-2 text-gray-600">
                     <FaUserMd className="text-blue-600" />
@@ -138,7 +128,10 @@ export const AllAppointments = () => {
                   </div>
                   <div className="text-blue-600 font-bold text-lg">৳{apt.fee}</div>
                 </div>
-                <button onClick={() => handleViewDetails(apt.id)} className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-bold">
+                <button
+                  onClick={() => handleViewDetails(apt._id || apt.id)}
+                  className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-bold"
+                >
                   View Details
                 </button>
               </div>

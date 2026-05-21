@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getDoctorById } from '../utils/api';
 import { LoadingSpinner } from '../components/LoadingSpinner';

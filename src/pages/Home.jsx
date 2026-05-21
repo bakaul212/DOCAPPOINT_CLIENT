@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/css';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { createAppointment } from '../utils/api';
 import toast from 'react-hot-toast';

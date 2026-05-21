@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
